@@ -1,0 +1,39 @@
+pollutantmean <- function(dir, p, id){
+        dir
+        class(dir)
+        p
+        class(p)
+        id
+        class(id)
+        setwd(dir)
+        mean<-0
+        finalmean<-0
+        for(i in 1:length(id)){
+                if(1<=id[i]&&id[i]<=9){
+                        name<-c("00")
+                        csvname<-paste(name,id[i],".csv",sep="")
+                        csvname
+                        data<-read.csv(csvname)
+                        mean<-mean+colMeans(data[p],na.rm=TRUE)
+                        mean
+                }
+                else if(10<=id[i]&&id[i]<=99){
+                        name<-c("0")
+                        csvname<-paste(name,id[i],".csv",sep="")
+                        csvname
+                        data<-read.csv(csvname)
+                        mean<-mean+colMeans(data[p],na.rm=TRUE)
+                        mean
+                }
+                else{
+                        csvname<-paste(id[i],".csv",sep="")
+                        csvname
+                        data<-read.csv(csvname)
+                        mean<-mean+colMeans(data[p],na.rm=TRUE)
+                        mean
+                }
+        }
+        finalmean<-mean/length(id)
+        paste(finalmean)
+        setwd("..")
+}

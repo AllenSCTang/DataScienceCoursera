@@ -1,0 +1,70 @@
+---
+title: "Project of Practical Machine Learning"
+author: "Allen S.C. Tang"
+date: "2015/9/26"
+output: html_document
+---
+
+##Get The Data
+Thanks http://groupware.les.inf.puc-rio.br/har for sharing the data
+```{r getdata, echo=T}
+library("RCurl")
+trainurl<-getURL("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv")
+testurl<-getURL("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv")
+train<-read.csv(textConnection(trainurl))
+```
+
+##Before Modeling
+In order to reduce the noise/calculation effort and increase accuracy,
+I take following 2 steps to clean the training data,
+before creating the model from the training data:
+1. Remove columns with blank/NA values, user names and timestamps
+2. Select important attributes by sbf function
+```{r preprocess, echo=T}
+library(caret)
+set.seed(425)
+train[train==""]<-NA
+train<-train[,colSums(is.na(train))==0]
+train<-train[,8:60]
+inTrain<-createDataPartition(y=train$classe,p=0.66,list=F)
+train01<-train[inTrain,]
+test01<-train[-inTrain,]
+fs<-sbf(train01[,-53],train01[,53],sbfControl=sbfControl(functions=rfSBF,method="cv"))
+train02<-train01[,fs$optVariables]
+```
+
+##Modeling by Random Forest with 10-Fold Cross Validation
+Random Forest model is good at accuracy, I use this model with 10-fold cross validation to make sure that I can get the model as accurate as possible.
+```{r modeling, echo=T}
+library(randomForest)
+rf<-train(train01$classe~.,data=train02,method="rf",
+          trControl=trainControl(method="cv",number=10))
+print(rf$finalModel)
+test01cm<-confusionMatrix(test01$classe,predict(rf,test01))
+print(test01cm$overall[1])
+```
+
+##Pre-Test Analysis
+After modeling, the estimate of error is less than 1%.
+I test the model with the test data extracted from the training data,
+and I get the 99% of accuracy too, which validates the estimate.
+That is a good result, but I am afraid that I might get in the trap of overfitting,
+so I decide to give it a testrun with the test data provided in the project description.
+
+##Apply Test Data to The Model
+I clean the test data by removing columns with blank/NA values, 
+user names and timestamps, just like I did to the training data.
+When test data is precessed , I apply the data to the model...
+```{r testcases,echo=TRUE}
+test<-read.csv(textConnection(testurl))
+set.seed(425)
+test[test==""]<-NA
+test<-test[,colSums(is.na(test))==0]
+test<-test[,8:60]
+predict(rf,test)
+```
+
+##Outcome
+I get the predicted answers and submit the first one with anxiety...
+Bingo! "You are correct!" is showed on the screen, what a relief!
+And next I get 19 same messages, which proves my model is accurate.

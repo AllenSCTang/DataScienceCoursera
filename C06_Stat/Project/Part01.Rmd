@@ -1,0 +1,38 @@
+---
+title: "Part 1 of Statistical Inference Project"
+author: "Allen S.C. Tang"
+date: "2015年3月21日"
+output: html_document
+---
+###Overview:
+This report shows the central limit theorem holds to exponential distribution when the number of simulations is large enough.
+
+###Simulations:
+Below are the simulations based on iid exponential distributions:
+```{r sim,echo=TRUE}
+emeans<-NULL
+for(z in 1:1000) emeans<-c(emeans,mean(rexp(40,0.2)))
+evar<-NULL
+for(y in 1:1000) evar<-c(evar,var(rexp(40,0.2)))
+```
+
+###Sample Mean versus Theoretical Mean:
+According to the original description in the question, the theoretical mean of the exponential distribution is 1/lambda, which equals to 5. And the sample mean from 1000 simulations of 40 random exponentials is:
+```{r stmean, echo=TRUE}
+cat("The sample means is",mean(emeans))
+```
+As the result, the sample mean is very close to the theoretical mean, which shows that the central limit theorem still holds.
+
+###Sample Variance versus Theoretical Variance:
+According to the original description in the question, the theoretical variance of the exponential distribution is (1/lambda)^2, which equals to 25. And the sample variance from 1000 simulations of 40 random exponentials is:
+```{r stvar, echo=TRUE}
+cat("The sample variance is",mean(evar))
+```
+As the result, the sample variance is very close to the theoretical variance, which shows that the central limit theorem still holds.
+
+###Distribution:
+Compare the histograms of 1000 random exponentials and 1000 simulations of 40 random exponentials, the later histogram shows that the distibution of sample mean of 1000 simulations of 40 random exponentials is more bell-shaped then the histogram of 1000 random exponentials, which means the distribution is approximately normal.
+```{r dist, echo=TRUE}
+hist(rexp(1000,0.2))
+hist(emeans)
+```

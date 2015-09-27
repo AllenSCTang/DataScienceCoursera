@@ -1,0 +1,63 @@
+---
+title: "Project of Regression Models"
+author: "Allen S.C. Tang"
+---
+
+####Executive Summary
+#####In the exploratory stage, I can assume the manual transmission is better than auto transmission for MPG, based on the box plot, t-test and SLM coefficients and the difference is also shown. Then I use dfbetas function to find the key variables in the multivaraible regressions, and I get am, vs, drat, wt and carb as key variables and residual plots.
+
+####Exploratory Data Analyses
+#####Based on the box plot and t-test result (alpha = 0.05) in the following, for the time being, it looks like that the manual transmission is better than auto transmission for MPG.
+```{r exploratory, fig.height=2, fig.width=2, echo=TRUE}
+library(ggplot2)
+data(mtcars)
+mtcars$am<-as.factor(as.character(mtcars$am))
+g0<-ggplot(mtcars,aes(am,mpg))+geom_boxplot()
+print(g0)
+auto<-subset(mtcars,mtcars$am==0)
+manual<-subset(mtcars,mtcars$am==1)
+round(t.test(auto$mpg,manual$mpg,alternative=c("t"),var.equal=FALSE)$p.value,digits=5)
+diffmean<-mean(auto$mpg)-mean(manual$mpg)
+cat("The difference of MPG between auto and manual transmission is:",diffmean)
+```
+
+####Simple Linear Regression
+#####According to the linear regression coefficients below, the trasmission is indeed a crucial factor to MPG.
+```{r LM, fig.heigplotht=3, fig.width=3, echo=TRUE}
+fit0<-lm(mpg~am,data=mtcars)
+summary(fit0)$coefficients
+```
+
+####Multivariable Regression
+#####If taking all the variables into consideration, I calculate the lm and select the biggest absolute value (>0.1) in dfbetas function as key variable, then take that variable to caculate a new lm and select the biggest absolute value in dfbetas function from rest variables. Keep repeating this procedure until no value in dfbetas is greater than 0.1. And I get am, vs, drat, wt and carb as key variables. The whole procedure shows in the following table.
+```{r multi, fig.height=3, fig.width=3, echo=TRUE}
+fit1<-lm(mpg~.,data=mtcars)
+fit1betas<-round(dfbetas(fit1)[1:ncol(mtcars)],3)
+fit2<-lm(mpg~am,data=mtcars)
+fit2betas<-round(dfbetas(fit2)[1:ncol(mtcars)],3)
+fit3<-update(fit2,mpg~am+vs)
+fit3betas<-round(dfbetas(fit3)[1:ncol(mtcars)],3)
+fit4<-update(fit3,mpg~am+vs+drat)
+fit4betas<-round(dfbetas(fit4)[1:ncol(mtcars)],3)
+fit5<-update(fit4,mpg~am+vs+drat+wt)
+fit5betas<-round(dfbetas(fit5)[1:ncol(mtcars)],3)
+fit6<-update(fit5,mpg~am+vs+drat+wt+carb)
+fit6betas<-round(dfbetas(fit6)[1:ncol(mtcars)],3)
+table1<-data.frame()
+table1<-rbind(table1,fit1betas,fit2betas,fit3betas,fit4betas,fit5betas,fit6betas)
+colnames(table1)<-names(mtcars)
+```
+
+####Residual Diagnostics
+#####While going through the procedure of multivariable regression, the residual plots are generated along the way, which use the latest variable added to the regression. The plots are in the appendix.
+
+####Appendix
+#####The residual plots
+```{r residaul, fig.height=6, fig.width=6, echo=TRUE}
+par(mfcol=c(2,3))
+plot(y=resid(fit2),x=mtcars$am)
+plot(y=resid(fit3),x=mtcars$vs)
+plot(y=resid(fit4),x=mtcars$drat)
+plot(y=resid(fit5),x=mtcars$wt)
+plot(y=resid(fit6),x=mtcars$carb)
+```
