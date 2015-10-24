@@ -1,0 +1,21 @@
+library(shiny)
+library(quantmod)
+getSymbols("AAPL")
+
+shinyServer(
+      function(input,output){
+            output$plot<-renderPlot({
+                  chartSeries(AAPL,theme='white')
+                  input$GO
+                  isolate(addLines(v=which(index(AAPL)==input$CheckDate)))
+            })
+            output$price<-renderText({
+                  input$GO
+                  isolate(AAPL[input$CheckDate]$AAPL.Close)
+            })
+            output$vol<-renderText({
+                  input$GO
+                  isolate(AAPL[input$CheckDate]$AAPL.Volume)
+            })
+      }
+)
