@@ -42,13 +42,8 @@ knit        : slidify::knit2slides
 - It's beneficial to know the trend of Apple stock!
 
 *** {name: right}
-```{r stockplot,echo=FALSE,results='hide'}
-library(quantmod)
-suppressMessages(getSymbols("AAPL",from="2014-07-01"))
-```
-```{r,echo=FALSE}
-chartSeries(AAPL,theme='white')
-```
+
+![plot of chunk unnamed-chunk-1](assets/fig/unnamed-chunk-1-1.png) 
 
 --- #custbg2
 
